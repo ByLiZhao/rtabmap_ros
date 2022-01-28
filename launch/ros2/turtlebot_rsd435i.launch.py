@@ -38,7 +38,8 @@ def generate_launch_description():
           'qos_imu':qos,
           'Reg/Force3DoF':'true',
           'Optimizer/GravitySigma':'0', # Disable imu constraints (we are already in 2D)
-          # 'compressed': True,    # use compressed images
+          'visual_odometry':False,
+          'approx_sync':True,
     }
 
     remappings=[
@@ -50,7 +51,7 @@ def generate_launch_description():
 
         # Launch arguments
         DeclareLaunchArgument(
-            'use_sim_time', default_value='true',
+            'use_sim_time', default_value='false',
             description='Use simulation (Gazebo) clock if true'),
 
         DeclareLaunchArgument(
