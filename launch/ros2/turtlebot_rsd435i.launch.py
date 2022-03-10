@@ -1,22 +1,3 @@
-# Requirements:
-#   Install Turtlebot3 packages
-#   Install https://github.com/mlherd/ros2_turtlebot3_waffle_intel_realsense
-# Example:
-#   $ export TURTLEBOT3_MODEL=waffle
-#   $ ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
-#
-#   SLAM:
-#   $ ros2 launch rtabmap_ros turtlebot3_rgbd.launch.py
-#   OR
-#   $ ros2 launch rtabmap_ros rtabmap.launch.py visual_odometry:=false frame_id:=base_footprint odom_topic:=/odom args:="-d" use_sim_time:=true rgb_topic:=/intel_realsense_r200_depth/image_raw depth_topic:=/intel_realsense_r200_depth/depth/image_raw camera_info_topic:=/intel_realsense_r200_depth/camera_info approx_sync:=true
-#
-#   Navigation (install nav2_bringup package):
-#     $ ros2 launch nav2_bringup navigation_launch.py use_sim_time:=True
-#     $ ros2 launch nav2_bringup rviz_launch.py
-#
-#   Teleop:
-#     $ ros2 run turtlebot3_teleop teleop_keyboard
-
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable
 from launch.substitutions import LaunchConfiguration
@@ -32,20 +13,27 @@ def generate_launch_description():
     parameters={
           'frame_id':'base_footprint',
           'use_sim_time':use_sim_time,
-          'subscribe_depth':True,
+          'subscribe_depth':False,
+          'subscribe_rgb':False,
+          'subscribe_rgbd':True,
+          # 'subscribe_scan':True,
           'use_action_for_goal':True,
           'qos_image':qos,
           'qos_imu':qos,
+          # 'qos_scan':qos,
+          # RTab-Map's parameters should be strings.
           'Reg/Force3DoF':'true',
           'Optimizer/GravitySigma':'0', # Disable imu constraints (we are already in 2D)
-          'visual_odometry':False,
+          'visual_odometry':'false',
           'approx_sync':True,
     }
 
-    remappings=[
-          ('rgb/image', '/camera/color/image_raw'),
-          ('rgb/camera_info', '/camera/color/camera_info'),
-          ('depth/image', '/camera/depth/image_rect_raw')]
+    # remappings=[
+    #       ('rgb/image', '/camera/color/image_raw'),
+    #       ('rgb/camera_info', '/camera/color/camera_info'),
+    #       ('depth/image', '/camera/depth/image_rect_raw')]
+
+    remappings = []
 
     return LaunchDescription([
 
@@ -53,6 +41,10 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'use_sim_time', default_value='false',
             description='Use simulation (Gazebo) clock if true'),
+
+        DeclareLaunchArgument(
+            'compressed', default_value='true',
+            description='use compressed rgbd image to save network bandwitdh'),
 
         DeclareLaunchArgument(
             'qos', default_value='2',
